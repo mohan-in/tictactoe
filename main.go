@@ -32,27 +32,40 @@ func main() {
 }
 
 func run(state State, level int, turn byte, ch chan State) int {
-	if state.isWinningState('x') {
-		return -1
-	} else if state.isWinningState('o') {
+	if state.isWinningState(computer) {
 		return 1
-	} else {
-		fs := state.getFutureStates(turn)
-		for _, s := range fs {
-			w := run(s, level+1, switchTurn(turn), ch)
-			if w == 1 {
-				s.printState()
-				if level == 0 {
-					ch <- s
-				} else {
-					return 1
-				}
-			} else {
-				return w
-			}
+	}
+	if state.isWinningState(user) {
+		return -1
+	}
+
+	min := 1
+	max := -1
+	var nextState State
+
+	fs := state.getFutureStates(turn)
+
+	for _, s := range fs {
+		w := run(s, level+1, switchTurn(turn), nil)
+
+		if turn == computer && w > max {
+			max = w
+			nextState = s
+		} else if turn == user && w < min {
+			min = w
+			nextState = s
 		}
 	}
-	return 0
+
+	if level == 0 {
+		ch <- nextState
+	}
+
+	if turn == computer {
+		return max
+	} else {
+		return min
+	}
 }
 
 func (state State) isWinningState(t byte) bool {
