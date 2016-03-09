@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 )
 
 type State [3][3]byte
@@ -22,12 +23,16 @@ func main() {
 			break
 		}
 
+		state.checkDraw()
+
 		state.getUserInput()
 		state.printState()
 		if state.isWinningState('x') {
 			fmt.Println("You Win!!")
 			break
 		}
+
+		state.checkDraw()
 	}
 }
 
@@ -86,6 +91,18 @@ func (state State) isWinningState(t byte) bool {
 	return false
 }
 
+func (state State) checkDraw() {
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			if state[i][j] == 0 {
+				return
+			}
+		}
+	}
+
+	os.Exit(0)
+}
+
 func (state State) getFutureStates(turn byte) []State {
 	result := []State{}
 	s := state
@@ -101,6 +118,7 @@ func (state State) getFutureStates(turn byte) []State {
 		}
 	}
 
+	fmt.Println("Match Draw")
 	return result
 }
 
@@ -116,9 +134,9 @@ func (state *State) getUserInput() {
 	var i, j int
 
 	for {
-		fmt.Print("Enter row: ")
+		fmt.Print("Enter row (0-2): ")
 		fmt.Scanf("%d", &i)
-		fmt.Print("Enter column: ")
+		fmt.Print("Enter column (0-2): ")
 		fmt.Scanf("%d", &j)
 		if state[i][j] == 0 {
 			state[i][j] = user
